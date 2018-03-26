@@ -1,7 +1,7 @@
 ﻿# learn-mongoDB
 mongoDB 数据库学习
 
-# mongoDB 的安装与配置
+# 一.mongoDB 的安装与配置
 1. 官网下载 www.mongodb.com
 2. 默认安装（complete）
 3. 配置
@@ -13,20 +13,20 @@ mkdir data
 cd data 
 mkdir db
 ```
-# 图形界面
+# 二.图形界面
 
-4. 启动
+# 三.启动
 mongod 启动mongoDB服务
 mongo 连接数据库
 
-# mongoDB 介绍
+# 四.mongoDB 介绍
 1.非关系型数据库
 2.存储结构
 数据库 -----  数据库
 数据表 -----  集合
 数据行 -----  文件(对象)
 
-# mongoDB-基础命令-1
+# 五.mongoDB-基础命令-1
 ```
 1.查看所有数据库
 show dbs 
@@ -37,7 +37,7 @@ db
 4.查看所有集合
 show collections
 ```
-# mongoDB-基础命令-2
+# 六.mongoDB-基础命令-2
 ```
 1.创建数据库
 use DBname 这条命令不仅仅是查看，还能创建。如果是创建，数据库中没有集合或者集合中没有文件，db是看不到的
@@ -64,7 +64,7 @@ db 首先要进入数据库中,当前是哪个数据库
 db.dropDatabase() 删除数据库
 ```
 
-4. 用js写mongo shell
+# 七.用js写mongo shell
 在cmd中，或者类似bash命令行中直接敲命令行太难受了，需要用一种更好的工作方式，那就是用js来写mongo shell
 ```
 写之前注意：mongo shell 对es6的支持度不够好，最好用es5的写法
@@ -88,7 +88,7 @@ mongo ...
 
 ```
 
-5. 批量插入
+# 八.批量插入
 数据库性能最重要的是能够快速插入和快速查询
 现在对比快速插入和循环插入的性能
 3.2以前版本的批量插入
@@ -119,7 +119,7 @@ print('runTime is'+ runTime + 'ms')
 结果是循环插入的时间是批量插入时间的很多倍
 
 
-6. update常见错误1
+# 九.update常见错误1
 一般来说，update({条件},{修改后})
 这里是用修改后的对象替换修改前的对象，所以修改后的对象一定要写全，不要像关系型数据库那样只写要修改的字段
 ```
@@ -160,7 +160,7 @@ mongo
 load('./3-update常见错误.js')
 ```
 
-7. 初识update修改器
+# 十.初识update修改器
 ```
  $set修饰符：修改或添加属性
  db.集合.update({条件},{$set:{'修改键':'值','添加键':'值'}})
@@ -195,7 +195,7 @@ db.workMates.update({name:'希望'},{$set:{age:10}},{upsert:true})
 print('update success')
 ```
 
-8. update修改器之数组操作
+# 十一.update修改器之数组操作
 ```
 $push:往数组中添加
 db.集合.update({条件},{$push:{数组键:'添加值'}})
