@@ -1,0 +1,88 @@
+var db = connect("learn-mongodb")
+
+//$in
+db.workMates.find(
+    {
+      age:{
+          $in:[25,18]
+      }
+    },
+    {
+      _id:0,
+      name:1,
+      age:1
+    }
+)
+
+//$nin
+db.workMates.find(
+    {
+      age:{
+          $nin:[25,18]
+      }
+    },
+    {
+      _id:0,
+      name:1,
+      age:1
+    }
+)
+//$or
+db.workMates.find(
+    {
+      $or:[
+        {age:{$gte:30}},
+        {"skill.skillThree":'PHP'}
+      ]
+    },
+    {
+      _id:0,
+      name:1,
+      age:1,
+      'skill.skillThree':1
+    }
+)
+
+//$and
+db.workMates.find(
+  {
+    $and:[
+      {age:{$lte:30}},
+      // {"skill.skillThree":'PHP'}
+    ]
+  },
+  {
+    _id:0,
+    name:1,
+    age:1,
+    'skill.skillThree':1
+  }
+)
+
+//$nor
+db.workMates.find(
+  {
+    $nor:[
+      {age:{$lte:30}},
+      {"skill.skillThree":'PHP'}
+    ]
+  },
+  {
+    _id:0,
+    name:1,
+    age:1,
+    'skill.skillThree':1
+  }
+)
+
+//$not 
+db.workMates.find({
+  age:{
+      $not:{
+          $lte:30,
+          $gte:20
+      }
+  }
+},
+{name:1,"skill.skillOne":1,age:1,_id:0}
+)

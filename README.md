@@ -22,9 +22,11 @@ mkdir db
 # 四.mongoDB 介绍
 1. 非关系型数据库
 2. 存储结构
+```
 数据库 -----  数据库
 数据表 -----  集合
 数据行 -----  文件(对象)
+```
 
 # 五.mongoDB-基础命令-1
 ```
@@ -225,6 +227,285 @@ db.集合.update({条件},{$set:{'对象.1':'修改值'}})
 
 
 ```
+
+
+# 十三.修改：状态返回与安全
+在时间工作中，修改很少用到db.集合.update这种形式，因为这种形式是没有应答的，得自己写print这种语句，这显然是不行的，所有要用到有应答的需改---db.runCommand()和findAndModify
+db.runCommmand():
+它是数据库运行命令的执行器，执行命令首选就要使用它，因为它在Shell和驱动程序间提供了一致的接口。（几乎操作数据库的所有操作，都可以使用runCommand来执行）
+```
+比如我们要查看是否和数据库链接成功了，就可以使用Command命令。
+db.runCommand({ping:1})
+返回ok：1就代表链接正常。
+```
+```
+db.集合.update({name:'张三'},{$set:{age:'10'}},false,true)
+var resultMessage = db.runCommand({
+    getLastError:1
+})
+prinjson(resultMessage) 
+
+//这里就可以进行安全性控制了
+if(updatedExisting){      
+
+}else{
+
+}
+或者
+if(ok === 1){
+
+}else{
+
+}
+
+
+false：第一句末尾的false是upsert的简写，代表没有此条数据时不增加;
+true：true是multi的简写，代表修改所有，这两个我们在前边课程已经学过。
+getLastError:1 :表示返回功能错误，这里的参数很多，如果有兴趣请自行查找学习，这里不作过多介绍。(db.listCommands( ):查看所有的参数)
+printjson：表示以json对象的格式输出到控制台。
+```
+findAndModify:runCommand的配置选项
+```
+var myModify={
+    findAndModify:"workmates",
+    query:{name:'张三'},
+    update:{$set:{age:18}},
+    new:true    //更新完成，需要查看结果，如果为false不进行查看结果
+}
+var ResultMessage=db.runCommand(myModify);
+printjson(ResultMessage)
+```
+findAndModify属性值：
+. query：需要查询的条件/文档
+. sort:    进行排序
+. remove：[boolean]是否删除查找到的文档，值填写true，可以删除。
+. new:[boolean]返回更新前的文档还是更新后的文档。
+. fields：需要返回的字段
+. upsert：没有这个值是否增加。
+
+# 十四.查找:不等修改符
+准备数据
+```
+var workmate1={
+    name:'JSPang',
+    age:33,
+    sex:1,
+    job:'前端',
+    skill:{
+        skillOne:'HTML+CSS',
+        skillTwo:'JavaScript',
+        skillThree:'PHP'
+    },
+    regeditTime:new Date(),
+    interest:[]
+}
+var workmate2={
+    name:'ShengLei',
+    age:31,
+    sex:1,
+    job:'JAVA后端',
+    skill:{
+        skillOne:'HTML+CSS',
+        skillTwo:'J2EE',
+        skillThree:'PPT'
+    },
+    regeditTime:new Date(),
+    interest:[]
+}
+var workmate3={
+    name:'MinJie',
+    age:18,
+    sex:0,
+    job:'UI',
+    skill:{
+        skillOne:'PhotoShop',
+        skillTwo:'UI',
+        skillThree:'PPT'
+    },
+    regeditTime:new Date(),
+    interest:[]
+}
+var workmate4={
+    name:'XiaoWang',
+    age:25,
+    sex:1,
+    job:'UI',
+    skill:{
+        skillOne:'PhotoShop',
+        skillTwo:'UI',
+        skillThree:'PPT'
+    },
+    regeditTime:new Date(),
+    interest:[]
+}
+var workmate5={
+    name:'LiangPeng',
+    age:28,
+    sex:1,
+    job:'前端',
+    skill:{
+        skillOne:'HTML+CSS',
+        skillTwo:'JavaScript',
+    },
+    regeditTime:new Date(),
+    interest:[]
+}
+var workmate6={
+    name:'HouFei',
+    age:25,
+    sex:0,
+    job:'前端',
+    skill:{
+        skillOne:'HTML+CSS',
+        skillTwo:'JavaScript',
+    },
+    regeditTime:new Date(),
+    interest:[]
+}
+var workmate7={
+    name:'LiuYan',
+    age:35,
+    sex:0,
+    job:'美工',
+    skill:{
+        skillOne:'PhotoShop',
+        skillTwo:'CAD',
+    },
+    regeditTime:new Date(),
+    interest:[]
+}
+var workmate8={
+    name:'DingLu',
+    age:20,
+    sex:0,
+    job:'美工',
+    skill:{
+        skillOne:'PhotoShop',
+        skillTwo:'CAD',
+    },
+    regeditTime:new Date(),
+    interest:[]
+}
+var workmate9={
+    name:'JiaPeng',
+    age:29,
+    sex:1,
+    job:'前端',
+    skill:{
+        skillOne:'HTML+CSS',
+        skillTwo:'JavaScript',
+        skillThree:'PHP'
+    },
+    regeditTime:new Date(),
+    interest:[]
+}
+var workmate10={
+    name:'LiJia',
+    age:26,
+    sex:0,
+    job:'前端',
+    skill:{
+        skillOne:'HTML+CSS',
+        skillTwo:'JavaScript',
+        skillThree:'PHP'
+    },
+    regeditTime:new Date(),
+    interest:[]
+}
+var db=connect('company');
+var workmateArray=[workmate1,workmate2,workmate3,workmate4,workmate5,workmate6,workmate7,workmate8,workmate9,workmate10];
+db.workmate.insert(workmateArray);
+print('[SUCCESS]：The data was inserted successfully');
+```
+查找
+```
+1.简单查找
+db.workmate.find({"skill.skillOne":"HTML+CSS"})
+2.筛选字段
+db.workmate.find(
+    {"skill.skillOne":"HTML+CSS"},  //第一个对象是条件
+    {name:true,"skill.skillOne":true}//第二对象是现实内容(mongodb中1代表true，0代表fale)
+)
+3.不等修饰符
+小于($lt):英文全称less-than
+小于等于($lte)：英文全称less-than-equal
+大于($gt):英文全称greater-than
+大于等于($gte):英文全称greater-than-equal
+不等于($ne):英文全称not-equal
+
+4.日期查找
+MongoDB也提供了方便的日期查找方法，现在我们要查找注册日期大于2018年1月10日的数据，我们可以这样写代码。
+var startDate= new Date('01/01/2018');
+db.workmate.find(
+    {regeditTime:{$gt:startDate}},
+    {name:true,age:true,"skill.skillOne":true,_id:false}
+)
+```
+
+# 十五.多条件查找
+. $in：解决一键多值的查询情况
+```
+db.workmate.find({age:{$in:[25,33]}},
+    {name:1,"skill.skillOne":1,age:1,_id:0}
+)
+```
+. $nin：和in相反 
+```
+```
+. $or：或  查询多个键值的情况 
+```
+db.workmate.find({$or:[
+    {age:{$gte:30}},
+    {"skill.skillThree":'PHP'}
+]},
+    {name:1,"skill.skillThree":1,age:1,_id:0}
+)
+```
+. $and：和 查找几个key值都满足的情况
+```
+db.workmate.find({$and:[
+    {age:{$gte:30}},
+    {"skill.skillThree":'PHP'}
+]},
+    {name:1,"skill.skillThree":1,age:1,_id:0}
+)
+```
+. $not:除了 查询除条件之外的值(这里要注意not只能用在条件里面，不像or and 用在条件外)
+```
+db.workmate.find({
+    age:{
+        $not:{
+            $lte:30,
+            $gte:20
+        }
+    }
+},
+{name:1,"skill.skillOne":1,age:1,_id:0}
+)
+```
+. $nor:除了 几个条件都不满足
+```
+db.workMates.find(
+  {
+    $nor:[
+      {age:{$lte:30}},
+      {"skill.skillThree":'PHP'}
+    ]
+  },
+  {
+    _id:0,
+    name:1,
+    age:1,
+    'skill.skillThree':1
+  }
+)
+
+```
+
+
+
+
+
 
 
 
