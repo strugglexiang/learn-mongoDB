@@ -20,7 +20,7 @@ mongoDB 数据库学习
 - [十六.find的参数(分页和排序)](#十六.find的参数(分页和排序))
 - [十七.find如何在js文本中使用](#十七.find如何在js文本中使用)
 
-# 一.mongoDB的安装与配置
+## 一.mongoDB的安装与配置
 1. 官网下载 www.mongodb.com
 2. 默认安装（complete）
 3. 配置
