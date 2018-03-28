@@ -5,7 +5,7 @@ mongoDB 数据库学习
 - [1-mongodb的安装与配置](#1-mongodb的安装与配置)
 - [2-图形界面](#2-图形界面)
 - [3-启动](#3-启动)
-- [4-mongoDB-介绍](#4-mongoDB-介绍)
+- [4-mongodb-介绍](#4-mongodb-介绍)
 - [5-mongoDB-基础命令-1](#5-mongoDB-基础命令-1)
 - [6-mongoDB-基础命令-2](#6-mongoDB-基础命令-2)
 - [7-用js写mongo-shell](#7-用js写mongo-shell)
