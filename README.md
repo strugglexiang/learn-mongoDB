@@ -158,8 +158,8 @@ db.workMates.insert(temp)
 ```
 mongodb命令行中可以这样
 ```
-mongo
-load('./3-update常见错误.js')
+mongo 数据库外
+load('./3-update常见错误.js') 数据库内
 ```
 
 # 十.初识update修改器
@@ -502,10 +502,96 @@ db.workMates.find(
 
 ```
 
+# 十六.find的数组查询
+数组查询是和一般查询不一样的
+. 完全匹配
+```
+1.直接使用[]是完全匹配
+db.集合.find({interest:['看电影']})
+2.$size 数组个数查询
+db.集合.find({interest:{$size:4}}) //查询interest中数量为4的文件
+```
+. 模糊匹配
+```
+1.$all 匹配多项
+db.集合.find({interest:{$all:['画画','看电影']}}) //数组中包含画画和看电影
+
+2.$in 匹配多项的某项
+db.集合.find({interest:{$in:['画画','看电影']}) //数组中包含画画或者包含看电影
+```
+. 数组选项$slice(在field参数中使用):有时候我们并不需要显示数组中的所有值
+```
+$slice后面跟的是数组下标
+db.集合.find(
+    {},
+    {
+        interest:{$slice:1} //显示第1项
+        interest:{$slice:1} //显示第2项
+        interest:{$slice:-1} //显示最后一项
+        interest:{$slice:[3,4]}//显示第2项和第三项
+    }
+)
+```
+
+# 十七.find的参数(分页和排序)
+5个重要参数
+. query: 这个就是查询条件，MongoDB默认的第一个参数。
+. fields：（返回内容）查询出来后显示的结果样式，可以用true和false控制是否显示。
+. limit：返回的数量，后边跟数字，控制每次查询返回的结果数量。
+. skip:跳过多少个显示，和limit结合可以实现分页。
+. sort：排序方式，从小到大排序使用1，从大到小排序使用-1。
+```
+db.workMates.find(
+    {
+        interest:{$all:['画画']}
+    },
+    {
+       name:1,
+       age:1,
+       _id:0,
+       interest:1
+    }
+).limit(1).skip(2).sort({age:1})
+```
+$where修饰符 强大的查询功能但是尽量少用
+```
+db.workMates.find(
+    {
+        $where:'this.age>30' //this指集合
+    },
+    {
+        _id:0,
+        name:1,
+        age:1
+    }
+)
+```
+
+# 十八.find如何在js文本中使用
+之前都是用直接复制命令在mongo里面查询才能返回结果
+现在写完用mongo 和 load  的方法返回查询结果
+```
+var db = connect('learn-mongodb')
+
+var result = db.workMates.find()  //查询结果附给result
+
+// print(result)
+// printjson(result)
 
 
+//利用游标和循环
+// while(result.hasNext()){
+//     printjson(result.next())
+// }
+
+//forEach
+result.forEach(function(result){
+    printjson(result)
+    // print(result)
+})
 
 
+```
 
 
 
