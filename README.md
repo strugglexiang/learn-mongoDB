@@ -2,13 +2,13 @@
 mongoDB 数据库学习
 
 ## 目录
-- [一.mongoDB 的安装与配置](#一.mongoDB 的安装与配置)
+- [一.mongoDB的安装与配置](#一.mongoDB的安装与配置)
 - [二.图形界面](#二.图形界面)
 - [三.启动](#三.启动)
-- [四.mongoDB 介绍](#四.mongoDB 介绍)
+- [四.mongoDB-介绍](#四.mongoDB-介绍)
 - [五.mongoDB-基础命令-1](#五.mongoDB-基础命令-1)
 - [六.mongoDB-基础命令-2](#六.mongoDB-基础命令-2)
-- [七.用js写mongo shell](#七.用js写mongo shell)
+- [七.用js写mongo-shell](#七.用js写mongo-shell)
 - [八.批量插入](#八.批量插入)
 - [九.update常见错误1](#九.update常见错误1)
 - [十.初识update修改器](#十.初识update修改器)
@@ -20,7 +20,7 @@ mongoDB 数据库学习
 - [十六.find的参数(分页和排序)](#十六.find的参数(分页和排序))
 - [十七.find如何在js文本中使用](#十七.find如何在js文本中使用)
 
-# 一.mongoDB 的安装与配置
+# 一.mongoDB的安装与配置
 1. 官网下载 www.mongodb.com
 2. 默认安装（complete）
 3. 配置
@@ -38,7 +38,7 @@ mkdir db
 1. mongod 启动mongoDB服务
 2. mongo 连接数据库
 
-# 四.mongoDB 介绍
+# 四.mongoDB-介绍
 1. 非关系型数据库
 2. 存储结构
 ```
@@ -85,7 +85,7 @@ db 首先要进入数据库中,当前是哪个数据库
 db.dropDatabase() 删除数据库
 ```
 
-# 七.用js写mongo shell
+# 七.用js写mongo-shell
 在cmd中，或者类似bash命令行中直接敲命令行太难受了，需要用一种更好的工作方式，那就是用js来写mongo shell
 ```
 写之前注意：mongo shell 对es6的支持度不够好，最好用es5的写法
