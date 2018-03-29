@@ -19,6 +19,10 @@ mongoDB 数据库学习
 - [15-find的数组查询](#15-find的数组查询)
 - [16-find的参数](#16-find的参数)
 - [17-find如何在js文本中使用](#17-find如何在js文本中使用)
+- [18-构建百万级数据](#18-构建百万级数据)
+- [19-建立索引](#19-建立索引)
+- [20-复合索引](#20-复合索引)
+- [21-全文索引](#21-全文索引)
 
 # 1-mongoDB的安装与配置
 1. 官网下载 www.mongodb.com
@@ -611,7 +615,154 @@ result.forEach(function(result){
 
 
 ```
+## 18-构建百万级数据
+索引是什么：
+在数据空中可以把数据库看字典，索引相当于目录，数据相当于字典里面的字，使用索引可以的大大加快查询的速度
 
+索引要在有非常大的数据量的时候才能显现出来作用，这里先构建百万级数据
+- 代码
+```
+var db = connect('learn-mongodb')
+
+function getRandomNum(min,max){
+    let range = max - min
+    let randomNum = Math.random()
+    return min + Math.floor(randomNum * range)
+}
+
+// console.log(getRandomNum(100000,900000))
+
+function getRandomUserName(min,max){
+    let Strings = '1234567890qwertuiopasdfjklzxcvbnm'.split('')
+    let nameLength =min + Math.floor(Math.random()*(max - min))
+    let userName = ''
+    for(let i = 0;i < nameLength;i++){
+       userName += Strings[Math.floor(Math.random()*Strings.length)]
+    }
+    return userName
+}
+
+// console.log(getRandomUserName(10,20))
+
+var millionData = []
+for(let i = 0;i<2000000;i++){
+    millionData.push({
+        userName:getRandomUserName(10,20),
+        num0:getRandomNum(5,10)
+    })
+}
+
+db.millionData.insert(millionData)
+
+print('millionDate is in success')
+```
+- 数据库库中查看集合
+> db.milliionData.stats() 看count属性有多少条数据
+>
+> db.millionData.find() 不会一次显示200万条，以分页形式,it下一页
+
+
+## 19-建立索引
+比较普通查询和索引查询的速度
+- find参数的一点发现
+```
+// db.millionData.find().limit(15).skip(20000).sort({num0:1})
+// db.millionData.find().limit(15).skip(20000)
+// 上面这两条证明是先排序后查询，而不是先查询后排序
+```
+- 建立索引
+```
+建立索引
+ db.millionData.ensureIndex({userName:1}) //为属性username建立索引
+ db.millionData.getIndexes() //差看本集合的索引值(默认有id索引)
+//删除索引
+// db.millionData.dropIndex({'userName':1}) 填key值
+// db.millionData.dropIndex('userName_1') 填name值 
+```
+测试代码：
+```
+var db = connect("learn-mongodb")
+var startTime = new Date().getTime()
+
+var rs = db.millionData.find({userName:'8zqj95fkxtnna2'})
+rs.forEach(result => {printjson(result)})
+
+var runTime = new Date().getTime() - startTime
+print('runtime is ' + runTime +'ms')
+``` 
+>没建立索引前运行上段代码是900ms，建立后2ms
+
+
+## 20-复合索引
+- 一个集合中的索引可以有多个，mongodb规定一个集合中的索引数不能超过64个
+- 给值为数字的字段建立索引，以该索引优先查询会比字符串索引要快
+- 注意：
+  >MongoDB的复合查询是按照我们的索引顺序进行查询的。就是我们用>db.millionData.getIndexes()查询出的数组顺序。
+- 我们可以自己规定复合索引查询的有限顺序
+```
+db.millionData.find({
+    userName:'8zqj95fkxtnna2',
+    num0:'6'
+}).hint({num0:1})
+这样就以num0索引优先查询
+```
+代码：
+```
+var db = connect("learn-mongodb")
+
+var startTime = new Date().getTime()
+
+var rs = db.millionData.find(
+    {
+      userName:'r3jks8ucuvcsmr',
+      num0:7,
+    }
+).hint({num0:1})
+
+rs.forEach(rs => { printjson(rs) })
+
+var runTime =  new Date().getTime() - startTime
+
+print('runtime is ' + runTime + 'ms')
+```
+> 这里测得用userName快一些，我估计是因为num0 = 7 的文件太多，而userName='r3jks8ucuvcsmr'太少的缘故
+> 所以索引值要用比较唯一的字段比较好
+
+
+## 21-全文索引
+有些时候需要在大篇幅的文章中搜索关键词，比如我写的文章每篇都在万字以上，这时候你想搜索关键字是非常不容易的，MongoDB为我们提供了全文索引
+
+-准备数据
+```
+db.info.insert({contextInfo:"I am a programmer, I love life, love family. Every day after work, I write a diary."})
+db.info.insert({contextInfo:"I am a programmer, I love PlayGame, love drink. Every day after work, I playGame and drink."})
+db.info.isert({contextInfo:'由于所有的实例对象共享同一个prototype对象，那么从外界看起来，prototype对象就好像是实例对象的原型，而实例对象则好像"继承"了prototype对象一样。'})
+```
+- 建立全文索引
+```
+db.集合.ensure({字段:'text'})
+text 代表为集合中的某个 字段(如contextInfo) 建立全文索引
+```
+- 全文索引的使用
+```
+db.info.find(
+    {
+        $text:{
+            $search:{"字段1 -不用字段 \"转意，可有空格\""}
+        }
+    }
+)
+```
+>全文搜索中是支持转义符的，比如我们想搜索的是两个词（love PlayGame和drink），这时候需要使用\斜杠来转意。 
+>
+>$text  $search 全文索引查找
+>
+>$search 里面是 或 的关系，会找到包含这些词的所有的文件，
+>
+>利用 - 号可以删除包含的文件
+
+注意:
+目前发现关键字前后用空格隔开，才能查找到,有一些情况查不到，情况不明。
 
 
 
