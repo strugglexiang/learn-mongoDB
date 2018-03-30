@@ -23,6 +23,8 @@ mongoDB 数据库学习
 - [19-建立索引](#19-建立索引)
 - [20-复合索引](#20-复合索引)
 - [21-全文索引](#21-全文索引)
+- [22-用户管理](#22-用户管理)
+- [23-备份还原](#23-备份还原)
 
 # 1-mongoDB的安装与配置
 1. 官网下载 www.mongodb.com
@@ -763,6 +765,92 @@ db.info.find(
 
 注意:
 目前发现关键字前后用空格隔开，才能查找到,有一些情况查不到，情况不明。
+
+## 22-用户管理
+mongod开启服务是以最高权限开启，用mongo连接就有了最高权限，但在实际工作中不常用的，一般用自己的用户登录
+- 创建用户： 必需在admin库
+> 创建的用户是在admin库的system.users集合中
+```
+db.createUser{
+    user:"jspang", //用户名 
+    pwd:"123456",// 密码 必需是字符串
+    customData:{
+        name:'技术胖',
+        email:'web0432@126.com',
+        age:18,
+    },//备注
+    roles:['read'] //权限规则配置1
+    roles:[
+        {
+            role:"readWrite",
+            db:"company"
+        },
+        'read'
+    ]   //权限规则配置2(对单独库配置，其他库只读)
+}
+```
+> ## 内置角色
+>1. 数据库用户角色：read、readWrite；
+>
+>2. 数据库管理角色：dbAdmin、dbOwner、userAdmin;
+>
+>3. 集群管理角色：clusterAdmin、clusterManager、clusterMonitor、hostManage；
+>
+>4. 备份恢复角色：backup、restore；
+>
+>5. 所有数据库角色：readAnyDatabase、readWriteAnyDatabase、userAdminAnyDatabase、dbAdminAnyDatabase
+>
+>6. 超级用户角色：root
+>
+>7. 内部角色：__system
+
+- 删除用户:当前库为admin
+```
+db.system.users.drop({name:''})
+```
+
+- 建权:建权的时候一定要在admin为当前库下
+有时候我们要验证用户的用户名密码是否正确，就需要用到MongoDB提供的健全操作。也算是一种登录操作，不过MongoDB把这叫做建权。
+```
+db.auth("jspang","123456")
+```
+- 启动建权
+```
+mongod --auth
+```
+- 建权登录
+```
+mongo -u jspang -p 123456 127.0.0.1:27017/admin
+```
+
+## 23-备份还原
+- 备份
+```
+备份格式
+mongodump
+    --host 127.0.0.1  //必需
+    --port 27017      //必需
+    --out D:/databack/backup  //必需 
+    --collection myCollections //集合
+    --db test //数据库
+    --username username
+    --password password
+例子：
+mongodump --host 127.0.0.1 --port 27017 --out D:/databack/
+```
+- 还原
+```
+还原格式：
+mongorestore
+    --host 127.0.0.1 //必需
+    --port 27017  //必需
+    --username username
+    --password password
+    <path to the backup>  //必需
+例子：
+mongorestore --host 127.0.0.1 --port 27017 D:/databack/
+```
+
 
 
 
