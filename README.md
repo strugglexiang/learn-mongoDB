@@ -806,7 +806,7 @@ db.createUser{
 
 - 删除用户:当前库为admin
 ```
-db.system.users.drop({name:''})
+db.system.users.drop({user:''})
 ```
 
 - 建权:建权的时候一定要在admin为当前库下
