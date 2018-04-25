@@ -25,6 +25,7 @@ mongoDB 数据库学习
 - [21-全文索引](#21-全文索引)
 - [22-用户管理](#22-用户管理)
 - [23-备份还原](#23-备份还原)
+- [24-使用聚合](#24-使用聚合)
 
 # 1-mongoDB的安装与配置
 1. 官网下载 www.mongodb.com
@@ -850,6 +851,13 @@ mongorestore
 例子：
 mongorestore --host 127.0.0.1 --port 27017 D:/databack/
 ```
+
+
+## 24-使用聚合
+https://blog.csdn.net/qq_14950717/article/details/68925250
+```
+```
+
 
 
 
